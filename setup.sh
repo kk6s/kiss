@@ -15,15 +15,26 @@ error_exit() {
 
 # Step 0: Run cfdisk for Partitioning
 echo "Starting disk partitioning with cfdisk..."
-echo "Please create and format your partitions. The root partition should be mounted at /mnt."
+echo "Please create your partitions. Make note of the root partition (e.g., /dev/sda1)."
 cfdisk || error_exit "Failed to run cfdisk."
 
-# Prompt user to mount partitions
-echo "Ensure that your root partition is mounted at /mnt before proceeding."
-read -p "Press Enter to confirm that your partitions are mounted correctly..."
+# Step 1: Format and Mount the Partition
+echo "Formatting the root partition as ext4..."
+read -p "Enter the root partition (e.g., /dev/sda1): " root_partition
 
-# Step 1: Create Target Directory
-echo "Creating target directory: $target_dir"
+# Verify the partition exists
+if [ ! -b "$root_partition" ]; then
+    error_exit "Partition $root_partition does not exist."
+fi
+
+# Format the partition
+mkfs.ext4 "$root_partition" || error_exit "Failed to format $root_partition."
+
+# Mount the partition
+echo "Mounting $root_partition to /mnt..."
+mount "$root_partition" /mnt || error_exit "Failed to mount $root_partition to /mnt."
+
+# Create target directory within the mount point
 mkdir -p "$target_dir" || error_exit "Failed to create target directory."
 
 # Step 2: Download Installation Tarball
