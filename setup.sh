@@ -13,7 +13,14 @@ error_exit() {
     exit 1
 }
 
-echo "Starting KISS Linux Installation"
+# Step 0: Run cfdisk for Partitioning
+echo "Starting disk partitioning with cfdisk..."
+echo "Please create and format your partitions. The root partition should be mounted at /mnt."
+cfdisk || error_exit "Failed to run cfdisk."
+
+# Prompt user to mount partitions
+echo "Ensure that your root partition is mounted at /mnt before proceeding."
+read -p "Press Enter to confirm that your partitions are mounted correctly..."
 
 # Step 1: Create Target Directory
 echo "Creating target directory: $target_dir"
